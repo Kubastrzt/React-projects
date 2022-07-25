@@ -1,7 +1,7 @@
 import React from "react";
 import Filter from "../components/Filter";
 import Footer from "../components/Footer";
-import {Link, useNavigate} from 'react-router-dom'
+import {useNavigate} from 'react-router-dom'
 
 const ElectronicsProducts = ()=>{
     const [switchButton, setSwitchButton] = React.useState(false)

@@ -39,6 +39,11 @@ function App() {
     mapRef.current = map;
   }, []);
 
+  const panTo = React.useCallback(({ lat, lng }) => {
+    mapRef.current.panTo({ lat, lng });
+    mapRef.current.setZoom(14);
+  });
+
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_KEY,
     libraries
@@ -90,7 +95,7 @@ function App() {
             <div className="user"></div>
             <div className="user"></div>
           </aside>
-          <Search switch={toggleMenu} />
+          <Search switch={toggleMenu} panTo={panTo} />
           <GoogleMap
             zoom={13}
             options={{ styles: mapStyle, disableDefaultUI: true }}
@@ -132,14 +137,23 @@ function Search(props) {
     ready,
     value,
     suggestions: { status, data },
-    setValue
+    setValue,
+    clearSuggestions
   } = usePlacesAutocomplete();
 
   const handleInput = (e) => {
     setValue(e.target.value);
   };
-  const handleSelect = (val) => {
-    setValue(val, false);
+  const handleSelect = async (address) => {
+    setValue(address, false);
+    clearSuggestions();
+    try {
+      const results = await getGeocode({ address });
+      const { lat, lng } = getLatLng(results[0]);
+      props.panTo({ lat, lng });
+    } catch (err) {
+      console.log(err);
+    }
   };
   let className = 'search-bar';
   if (props.switch) {
